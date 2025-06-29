@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎵 My Music Site</title>
+  <style>
+    body { background: #121212; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
+    h1 { color: #00ffd5; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 10px 0; }
+    button {
+      padding: 10px 15px;
+      background: #00ffd5;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    audio { margin-top: 30px; width: 80%; }
+  </style>
+</head>
+<body>
+  <h1>🎧 Background Music Player</h1>
+  <ul id="songList">Loading...</ul>
+  <audio id="player" controls autoplay loop></audio>
+
+  <script>
+    const api = "https://your-render-url.onrender.com"; // ⛔ এটা আপনার API URL দিয়ে বদলান
+
+    fetch(api + "/songs")
+      .then(res => res.json())
+      .then(data => {
+        const ul = document.getElementById("songList");
+        ul.innerHTML = "";
+        data.forEach(song => {
+          const li = document.createElement("li");
+          li.innerHTML = `<button onclick="play('${song.id}')">▶</button> ${song.name}`;
+          ul.appendChild(li);
+        });
+      });
+
+    function play(id) {
+      document.getElementById("player").src = api + "/stream/" + id;
+    }
+  </script>
+</body>
+</html>
