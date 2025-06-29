@@ -16,32 +16,77 @@
       border-radius: 6px;
       cursor: pointer;
     }
+    input {
+      padding: 8px;
+      margin: 5px;
+      border-radius: 4px;
+      border: none;
+      width: 250px;
+    }
     audio { margin-top: 30px; width: 80%; }
   </style>
 </head>
 <body>
   <h1>🎧 Background Music Player</h1>
+
+  <div>
+    <input type="text" id="songName" placeholder="Song Name">
+    <input type="text" id="youtubeLink" placeholder="YouTube Link">
+    <button onclick="addSong()">➕ Add</button>
+  </div>
+
   <ul id="songList">Loading...</ul>
   <audio id="player" controls autoplay loop></audio>
 
   <script>
-    const api = "https://a-gy5d.onrender.com"; // ⛔ এটা আপনার API URL দিয়ে বদলান
+    const api = "https://a-gy5d.onrender.com"; // 🔁 এখানটা নিজের Render API URL দিন
+    let songs = [];
 
-    fetch(api + "/songs")
-      .then(res => res.json())
-      .then(data => {
-        const ul = document.getElementById("songList");
-        ul.innerHTML = "";
-        data.forEach(song => {
-          const li = document.createElement("li");
-          li.innerHTML = `<button onclick="play('${song.id}')">▶</button> ${song.name}`;
-          ul.appendChild(li);
+    function extractID(link) {
+      try {
+        const url = new URL(link);
+        return url.searchParams.get("v") || url.pathname.split("/").pop();
+      } catch (e) {
+        return link; // If it's already ID
+      }
+    }
+
+    function loadSongs() {
+      fetch(api + "/songs")
+        .then(res => res.json())
+        .then(data => {
+          songs = data;
+          renderSongs();
         });
+    }
+
+    function renderSongs() {
+      const ul = document.getElementById("songList");
+      ul.innerHTML = "";
+      songs.forEach(song => {
+        const li = document.createElement("li");
+        li.innerHTML = `<button onclick="play('${song.id}')">▶</button> ${song.name}`;
+        ul.appendChild(li);
       });
+    }
 
     function play(id) {
       document.getElementById("player").src = api + "/stream/" + id;
     }
+
+    function addSong() {
+      const name = document.getElementById("songName").value.trim();
+      const link = document.getElementById("youtubeLink").value.trim();
+      if (!name || !link) return alert("দয়া করে নাম ও YouTube লিংক দিন");
+
+      const id = extractID(link);
+      songs.push({ name, id });
+      renderSongs();
+      document.getElementById("songName").value = "";
+      document.getElementById("youtubeLink").value = "";
+    }
+
+    loadSongs();
   </script>
 </body>
 </html>
